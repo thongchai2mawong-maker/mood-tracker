@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Mood & Gratitude Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f7f9fc;
+            --card-bg: #ffffff;
+            --text-main: #2d3748;
+            --text-sub: #718096;
+            --primary: #818cf8;
+            --primary-hover: #6366f1;
+            --border-color: #e2e8f0;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: var(--text-main);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: var(--text-sub);
+            font-size: 0.9rem;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+
+        /* Mood Selection */
+        .mood-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .mood-btn {
+            flex: 1;
+            background: #f8fafc;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 12px 5px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .mood-btn:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+        }
+
+        .mood-btn.selected {
+            border-color: var(--primary);
+            background: #eef2ff;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(129, 140, 248, 0.2);
+        }
+
+        /* Gratitude Input */
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 14px;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            font-size: 0.95rem;
+            resize: none;
+            outline: none;
+            color: var(--text-main);
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+        }
+
+        /* Save Button */
+        .save-btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .save-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .save-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* History List */
+        .history-section {
+            margin-top: 30px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .history-item {
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 0.9rem;
+        }
+
+        .history-item .m-icon {
+            font-size: 1.4rem;
+        }
+
+        .history-item .content {
+            flex: 1;
+        }
+
+        .history-item .date {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            margin-bottom: 3px;
+        }
+
+        .empty-text {
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Mood & Gratitude Tracker</h1>
+            <p id="current-date">วันนี้คุณรู้สึกอย่างไรบ้าง?</p>
+        </header>
+
+        <!-- เลือกอารมณ์ -->
+        <div class="section-title">เลือกอารมณ์วันนี้</div>
+        <div class="mood-container">
+            <button class="mood-btn" onclick="selectMood('🥰', this)">🥰</button>
+            <button class="mood-btn" onclick="selectMood('😊', this)">😊</button>
+            <button class="mood-btn" onclick="selectMood('😐', this)">😐</button>
+            <button class="mood-btn" onclick="selectMood('😢', this)">😢</button>
+            <button class="mood-btn" onclick="selectMood('🔥', this)">🔥</button>
+        </div>
+
+        <!-- สิ่งที่ขอบคุณ -->
+        <div class="input-group">
+            <div class="section-title">สิ่งที่คุณรู้สึกขอบคุณในวันนี้คืออะไร?</div>
+            <textarea id="gratitude-input" placeholder="พิมพ์เรื่องราวดีๆ หรือสิ่งที่ทำให้คุณยิ้มได้วันนี้..."></textarea>
+        </div>
+
+        <!-- ปุ่มบันทึก -->
+        <button class="save-btn" onclick="saveEntry()">บันทึกความรู้สึก</button>
+
+        <!-- ประวัติย้อนหลัง -->
+        <div class="history-section">
+            <div class="section-title">บันทึกที่ผ่านมา</div>
+            <div id="history-list" class="history-list">
+                <div class="empty-text">ยังไม่มีประวัติการบันทึก</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // แสดงวันที่ปัจจุบัน
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('th-TH', options);
+
+        let selectedMood = '😊';
+
+        function selectMood(mood, element) {
+            document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedMood = mood;
+        }
+
+        function saveEntry() {
+            const text = document.getElementById('gratitude-input').value.trim();
+            if (!text) {
+                alert('กรุณาพิมพ์สิ่งที่คุณรู้สึกขอบคุณก่อนบันทึกนะคะ');
+                return;
+            }
+
+            const entry = {
+                mood: selectedMood,
+                text: text,
+                date: new Date().toLocaleDateString('th-TH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+            };
+
+            let histories = JSON.parse(localStorage.getItem('mood_histories')) || [];
+            histories.unshift(entry);
+            localStorage.setItem('mood_histories', JSON.stringify(histories));
+
+            document.getElementById('gratitude-input').value = '';
+            loadHistories();
+        }
+
+        function loadHistories() {
+            const historyList = document.getElementById('history-list');
+            let histories = JSON.parse(localStorage.getItem('mood_histories')) || [];
+
+            if (histories.length === 0) {
+                historyList.innerHTML = '<div class="empty-text">ยังไม่มีประวัติการบันทึก</div>';
+                return;
+            }
+
+            historyList.innerHTML = '';
+            histories.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <div class="m-icon">${item.mood}</div>
+                    <div class="content">
+                        <div class="date">${item.date}</div>
+                        <div>${escapeHtml(item.text)}</div>
+                    </div>
+                `;
+                historyList.appendChild(div);
+            });
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        loadHistories();
+    </script>
+</body>
+</html>
